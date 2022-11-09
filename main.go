@@ -26,10 +26,10 @@ func main() {
 	var getter, setter, private bool
 
 	flag.StringVar(&fileName, "f", "", "file name")
-	flag.BoolVar(&getter, "getter", false, "generate getter")
-	flag.BoolVar(&setter, "setter", false, "generate setter")
-	flag.BoolVar(&setter, "private", false, "generate setter")
-	flag.StringVar(&receiver, "receiver", "", "generate setter")
+	flag.BoolVar(&getter, "getter", true, "generate getter")
+	flag.BoolVar(&setter, "setter", true, "generate setter")
+	flag.BoolVar(&private, "private", true, "with private")
+	flag.StringVar(&receiver, "receiver", "", "receiver name")
 	flag.Parse()
 
 	if fileName == "" {
@@ -184,8 +184,6 @@ func (g *generator) generate() []byte {
 		return nil
 	}
 
-	log.Println(g.buf.String())
-
 	src, err := format.Source(g.buf.Bytes())
 	if err != nil {
 		log.Fatalf("format source faild:%s", err)
@@ -216,7 +214,6 @@ func (g *generator) build(typeName string, typ *ast.StructType) {
 	for _, field := range typ.Fields.List {
 		// TODO: check field tag
 		for _, name := range field.Names {
-
 			if name.Name[0] == '_' {
 				continue
 			}
@@ -233,12 +230,10 @@ func (g *generator) build(typeName string, typ *ast.StructType) {
 			exportName := strings.ToUpper(string(name.Name[0])) + name.Name[1:]
 
 			if g.withGetter {
-				// g.Printf(getterFormat, typeName, exportName, name.Name, typ)
 				g.genGetter(typeName, name.Name, exportName, typ)
 			}
 
 			if g.withSetter {
-				// g.Printf(setterFormat, typeName, exportName, name.Name, typ)
 				g.genSetter(typeName, name.Name, exportName, typ)
 			}
 		}
@@ -270,7 +265,7 @@ func ({{.Receiver}} *{{.Struct}}) Get{{.Name}}() {{.Type}} {
 {{- else -}}
 func ({{.Receiver}} *{{.Struct}}) Get{{.Name}}() *{{.Type}} {
 	if {{.Receiver}} != nil && {{.Receiver}}.{{.Field}} != nil {
-		return *{{.Receiver}}.{{.Field}}
+		return {{.Receiver}}.{{.Field}}
 	}	
 	return nil
 }
