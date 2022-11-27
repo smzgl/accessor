@@ -298,7 +298,7 @@ func (g *generator) isPrimitive(typeName string) bool {
 		"int", "uint", "string", "time.Time",
 	}
 
-	primitivePkgs := []string{"enum"}
+	primitivePkgs := []string{"enum", "status"}
 
 	for _, s := range primitiveTypes {
 		if strings.HasPrefix(typeName, s) {
